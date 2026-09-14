@@ -1,10 +1,13 @@
 # UI Automation Framework
 
+[![UI tests](https://github.com/Dilligan1/ui-automation-framework/actions/workflows/tests.yml/badge.svg)](https://github.com/Dilligan1/ui-automation-framework/actions/workflows/tests.yml)
+[![Allure report](https://img.shields.io/badge/Allure-отчёт-blue)](https://dilligan1.github.io/ui-automation-framework/)
+
 Фреймворк UI-автотестов на **Python + Selenium + pytest**, построенный по Page Object Model с разделением на интерфейсы ролей, компоненты и флоу.
 
 Тестируемая система (SUT) — [QA Automation Sandbox](https://github.com/manikosto/qa-automation-sandbox): социальная сеть на React + FastAPI с ролевым доступом, лентой, комментариями, загрузкой изображений и админ-панелью. Поднимается локально одной командой — прогон не зависит от доступности чужих демо-стендов.
 
-> API-автотесты на ту же систему — в репозитории [api-automation-framework](../api-automation-framework).
+> API-автотесты на ту же систему — в репозитории [api-automation-framework](https://github.com/Dilligan1/api-automation-framework).
 
 ---
 
@@ -88,7 +91,7 @@ docker compose run --rm report    # HTML-отчёт Allure
 
 ## Отчётность
 
-Каждый шаг страницы и теста размечен `allure.step`. При падении в отчёт автоматически попадают скриншот, URL и HTML страницы — этого достаточно, чтобы разобрать упавший тест, не воспроизводя его руками. В CI отчёт публикуется на GitHub Pages (`.github/workflows/tests.yml`).
+Каждый шаг страницы и теста размечен `allure.step`. При падении в отчёт автоматически попадают скриншот, URL и HTML страницы — этого достаточно, чтобы разобрать упавший тест, не воспроизводя его руками. В CI отчёт публикуется на GitHub Pages — [посмотреть последний прогон](https://dilligan1.github.io/ui-automation-framework/).
 
 ## Документация
 
