@@ -8,8 +8,10 @@ on:
   schedule:
     - cron: "0 3 * * *"
 
+# contents: write нужен, чтобы опубликовать Allure-отчёт в ветку gh-pages:
+# с правом read токен прогона получает 403 на push
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
