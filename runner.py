@@ -20,7 +20,12 @@ from concurrent.futures import ProcessPoolExecutor
 
 def run_tests(test_suite: str, num_threads: int) -> int:
     """Запустить один набор тестов и транслировать его вывод в консоль."""
+    # sys.executable, а не голый "pytest": так набор гарантированно запускается
+    # тем же интерпретатором, что и runner — иначе при неактивированном
+    # виртуальном окружении подхватится pytest из PATH без зависимостей
     command = [
+        sys.executable,
+        "-m",
         "pytest",
         "-sv",
         f"--alluredir=allure-results/{test_suite}",
