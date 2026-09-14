@@ -1,0 +1,121 @@
+name: UI tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  STAGE: local
+  HEADLESS: "true"
+  UI_HOST_LOCAL: http://localhost:3000
+  API_HOST_LOCAL: http://localhost:8000
+  RESET_BEFORE_RUN: "true"
+
+  # Учётные данные тестируемой песочницы. Это НЕ секреты: песочница —
+  # учебный стенд, её логины и пароли опубликованы в собственном README
+  # проекта и одинаковы у всех. Поэтому они лежат в открытом виде — прогон
+  # запускается с форка и без настройки Secrets.
+  LOCAL_ADMIN_EMAIL: admin@buzzhive.com
+  LOCAL_ADMIN_PASSWORD: admin123
+  LOCAL_MODERATOR_EMAIL: mod@buzzhive.com
+  LOCAL_MODERATOR_PASSWORD: mod123
+  LOCAL_USER_EMAIL: alice@buzzhive.com
+  LOCAL_USER_PASSWORD: alice123
+  LOCAL_MEDIA_EMAIL: bob@buzzhive.com
+  LOCAL_MEDIA_PASSWORD: bob123
+  LOCAL_PRIVATE_EMAIL: dave@buzzhive.com
+  LOCAL_PRIVATE_PASSWORD: dave123
+  LOCAL_EMPTY_EMAIL: eve@buzzhive.com
+  LOCAL_EMPTY_PASSWORD: eve123
+  LOCAL_BANNED_EMAIL: frank@buzzhive.com
+  LOCAL_BANNED_PASSWORD: frank123
+
+  USERNAME_ADMIN: admin
+  USERNAME_MODERATOR: moderator
+  USERNAME_USER: alice_dev
+  USERNAME_MEDIA: bob_photo
+  USERNAME_PRIVATE: dave_quiet
+  USERNAME_EMPTY: eve_new
+  USERNAME_BANNED: frank_banned
+
+  DB_HOST_LOCAL: localhost
+  DB_PORT_LOCAL: "5432"
+  DB_NAME_LOCAL: buzzhive
+  DB_USER_LOCAL: buzzhive_user
+  DB_PASSWORD_LOCAL: buzzhive_password
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Поднять тестируемую систему
+        run: |
+          git clone --depth 1 https://github.com/manikosto/qa-automation-sandbox.git sut
+          docker compose -f sut/docker-compose.yml up -d --build
+
+      - name: Дождаться готовности стенда
+        run: |
+          for i in $(seq 1 90); do
+            curl -fsS http://localhost:8000/api/health | grep -q healthy && break
+            sleep 2
+          done
+          for i in $(seq 1 60); do
+            curl -fsS -o /dev/null http://localhost:3000 && echo "Фронт готов" && exit 0
+            sleep 2
+          done
+          echo "Фронт не поднялся"; docker compose -f sut/docker-compose.yml logs --tail=50; exit 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Установить зависимости
+        run: pip install -r requirements.txt
+
+      # Chrome на ubuntu-latest предустановлен; Selenium Manager сам подберёт драйвер
+      - name: Проверить браузер
+        run: google-chrome --version
+
+      - name: Прогон тестов
+        run: pytest -v -n 3 --alluredir=allure-results
+
+      - name: Логи стенда при падении
+        if: failure()
+        run: docker compose -f sut/docker-compose.yml logs --tail=100
+
+      - name: Сохранить результаты Allure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results
+          retention-days: 14
+
+      - name: Собрать Allure-отчёт с историей
+        if: always()
+        uses: simple-elf/allure-report-action@v1.12
+        with:
+          allure_results: allure-results
+          allure_history: allure-history
+          keep_reports: 20
+
+      - name: Опубликовать отчёт на GitHub Pages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history

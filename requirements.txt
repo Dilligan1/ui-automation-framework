@@ -1,0 +1,25 @@
+# === Core Testing ===
+pytest==8.4.2
+pytest-xdist==3.8.0
+pytest-rerunfailures==16.0.1
+
+# === UI Automation ===
+selenium==4.27.1
+
+# === Reporting ===
+allure-pytest==2.15.0
+
+# === Test Data Generation ===
+Faker==37.8.0
+
+# === Configuration ===
+python-dotenv==1.1.1
+
+# === Utilities ===
+requests==2.32.3
+
+# === Parallel-safe session reuse ===
+filelock==3.16.1
+
+# === Database ===
+psycopg2-binary==2.9.10

@@ -1,0 +1,53 @@
+name: ui-automation
+
+# Общая конфигурация тестовых сервисов. Сервисы ниже отличаются только
+# маркером pytest (-m) и числом параллельных браузеров.
+x-test-base: &test-base
+  build:
+    context: .
+    dockerfile: Dockerfile
+  image: ui-automation:latest
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    STAGE: ${STAGE:-local}
+    HEADLESS: ${HEADLESS:-true}
+    THREADS: ${THREADS:-3}
+    # Приложение поднято на хосте — из контейнера оно доступно
+    # по host.docker.internal, а не по localhost
+    UI_HOST_LOCAL: ${UI_HOST_LOCAL:-http://host.docker.internal:3000}
+    API_HOST_LOCAL: ${API_HOST_LOCAL:-http://host.docker.internal:8000}
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  # Chromium падает при нехватке /dev/shm — тесты с длинными лентами
+  # без этого нестабильны
+  shm_size: "2gb"
+  volumes:
+    - ./:/app
+    - ./allure-results:/app/allure-results
+  tty: true
+
+services:
+  smoke:
+    <<: *test-base
+    command: >
+      sh -c "pytest -sv -o log_cli=true -n=$$THREADS -m=smoke --alluredir=allure-results"
+
+  regress:
+    <<: *test-base
+    command: >
+      sh -c "pytest -sv -o log_cli=true -n=$$THREADS -m=regress --alluredir=allure-results"
+
+  e2e:
+    <<: *test-base
+    command: >
+      sh -c "pytest -sv -o log_cli=true -m=e2e --alluredir=allure-results"
+
+  # Запускать после любого тестового сервиса: docker compose run --rm report
+  report:
+    image: ui-automation:latest
+    volumes:
+      - ./allure-results:/app/allure-results
+      - ./allure-report:/app/allure-report
+    command: sh -c "allure generate allure-results --clean -o allure-report"
