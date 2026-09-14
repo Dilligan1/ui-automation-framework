@@ -1,0 +1,1 @@
+[{"values":["local"],"name":"Environment"},{"values":["true"],"name":"Headless"},{"values":["chrome"],"name":"Browser"},{"values":["3.13.15"],"name":"Python"},{"values":["8.4.2"],"name":"pytest"}]
