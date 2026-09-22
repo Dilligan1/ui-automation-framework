@@ -1,5 +1,0 @@
-Всего строк: 4
-  0: A | Alice Developer | ✓ | @alice_dev | · | less than a minute ago | Success simple adult soon teach table member employee. #qa91587651 | #qa91587651 | 0 | 0 | 0
-  1: B | Bob Photographer | @bob_photo | · | 28 days ago | Golden hour magic ✨ #photography #nature | #photography | #nature | 3 | 2 | 0
-  2: B | Bob Photographer | @bob_photo | · | 22 days ago | Mountain sunrise this morning 🏔️ #photography #nature | #photography | #nature | 2 | 2 | 0
-  3: C | Carol Writer | @carol_writes | · | 26 days ago | Writing good documentation is an art form. Here are my top 5 tips for technical writing: |  | 1. Know your audience | 2. Use clear, simple language | 3. Include examples | 4. Structure with headings | 5. Review and iterate |  | #tech #devlife | #tech | #devlife | 3 | 2 | 0
